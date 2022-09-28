@@ -1,22 +1,18 @@
-
 class Board
-  SIZE = 3
+  attr_reader :current_player
 
   EMPTY = ' '
   X = 'X'
   O = 'O'
 
   def initialize
-    @board = Array.new(SIZE, EMPTY) { Array.new(SIZE, EMPTY) }
+    @board = Array.new(3, EMPTY) { Array.new(3, EMPTY) }
+    @current_player = 1
     print_board
   end
 
-  def p1_place(x, y)
-    place_marker(X, x, y)
-  end
-
-  def p2_place(x, y)
-    place_marker(O, x, y)
+  def game_over?
+    false
   end
 
   def print_board
@@ -25,14 +21,37 @@ class Board
     puts "   |   |   \n"
   end
 
-  private
-
-  def place_marker(marker, x, y)
-    @board[y][x] = marker
+  def place_marker(x_pos, y_pos)
+    @board[y_pos][x_pos] = @current_player == 1 ? X : O
+    @current_player = @current_player % 2 + 1
     print_board
   end
 end
 
-board = Board.new
-board.p1_place(0, 0)
-board.p2_place(1, 0)
+class Game
+  def initialize
+    @board = Board.new
+  end
+
+  def play
+    @board.place_marker(*process_input) until @board.game_over?
+  end
+
+  def process_input
+    puts "Player #{@board.current_player}'s turn!"
+    puts 'Enter the x and y position you wish to place your marker:'
+    input = gets.chomp.split
+    until valid_input?(input)
+      puts 'Invalid coordinates. Please try again:'
+      input = gets.chomp.split
+    end
+    input.map(&:to_i)
+  end
+
+  def valid_input?(input)
+    !input.nil? && input.length == 2 && input.all? { |e| e.to_i.to_s == e && e.to_i.between?(0, 2) }
+  end
+end
+
+game = Game.new
+game.play
