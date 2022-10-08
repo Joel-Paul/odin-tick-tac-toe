@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
+# Displays the board and handles game logic.
 class Board
   attr_reader :current_player
 
   EMPTY = ' '
-  X = 'X'
-  O = 'O'
+  PLAYER_1 = 'X'
+  PLAYER_2 = 'O'
 
   def initialize
     @board = Array.new(3, EMPTY) { Array.new(3, EMPTY) }
@@ -15,19 +18,22 @@ class Board
     false
   end
 
+  def place_marker(x_pos, y_pos)
+    @board[y_pos][x_pos] = @current_player == 1 ? PLAYER_1 : PLAYER_2
+    @current_player = @current_player % 2 + 1
+    print_board
+  end
+
+  private
+
   def print_board
     puts "   |   |   \n"
     puts @board.map { |row| " #{row.join(' | ')} " }.join("\n___|___|___\n   |   |   \n")
     puts "   |   |   \n"
   end
-
-  def place_marker(x_pos, y_pos)
-    @board[y_pos][x_pos] = @current_player == 1 ? X : O
-    @current_player = @current_player % 2 + 1
-    print_board
-  end
 end
 
+# Handles player input.
 class Game
   def initialize
     @board = Board.new
@@ -40,6 +46,7 @@ class Game
   def process_input
     puts "Player #{@board.current_player}'s turn!"
     puts 'Enter the x and y position you wish to place your marker:'
+
     input = gets.chomp.split
     until valid_input?(input)
       puts 'Invalid coordinates. Please try again:'
