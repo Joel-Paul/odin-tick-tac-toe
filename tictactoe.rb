@@ -20,8 +20,12 @@ class Board
   end
 
   def place_marker(x_pos, y_pos)
-    @board[y_pos][x_pos] = @current_player == 1 ? PLAYER_1 : PLAYER_2
-    @current_player = @current_player % 2 + 1 unless game_over?
+    empty = @board[y_pos][x_pos] == EMPTY
+    if empty
+      @board[y_pos][x_pos] = @current_player == 1 ? PLAYER_1 : PLAYER_2
+      @current_player = @current_player % 2 + 1 unless game_over?
+    end
+    empty
   end
 
   def print_board
@@ -52,18 +56,29 @@ class Game
   end
 
   def play
-    @board.print_board
-
+    display_board
     until @board.game_over?
-      @board.place_marker(*process_input)
-      @board.print_board
+      if @board.place_marker(*process_input)
+        display_board
+      else
+        puts 'A marker already exists here. Please try again:'
+      end
+    end
+  end
+
+  private
+
+  def display_board
+    @board.print_board
+    if @board.game_over?
+      puts "Player #{@board.current_player} won!"
+    else
+      puts "Player #{@board.current_player}'s turn!"
+      puts 'Enter the x and y position you wish to place your marker:'
     end
   end
 
   def process_input
-    puts "Player #{@board.current_player}'s turn!"
-    puts 'Enter the x and y position you wish to place your marker:'
-
     input = gets.chomp.split
     until valid_input?(input)
       puts 'Invalid coordinates. Please try again:'
