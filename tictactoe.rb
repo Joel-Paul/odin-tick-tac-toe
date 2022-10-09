@@ -14,9 +14,13 @@ class Board
   end
 
   def game_over?
+    game_won? || @board.all? { |row| row.none? { |s| s == EMPTY } }
+  end
+
+  def game_won?
     won = @board.any? { |row| same_markers?(row) }
     won ||= @board.transpose.any? { |row| same_markers?(row) }
-    won || game_over_diagonal?
+    won || game_won_diagonal?
   end
 
   def place_marker(x_pos, y_pos)
@@ -36,7 +40,7 @@ class Board
 
   private
 
-  def game_over_diagonal?
+  def game_won_diagonal?
     diagonals = Array.new(2)
     diagonals[0] = (0..2).map { |i| @board[i][i] }
     diagonals[1] = (0..2).map { |i| @board[i][2 - i] }
@@ -70,11 +74,20 @@ class Game
 
   def display_board
     @board.print_board
+
     if @board.game_over?
-      puts "Player #{@board.current_player} won!"
+      game_over
     else
       puts "Player #{@board.current_player}'s turn!"
       puts 'Enter the x and y position you wish to place your marker:'
+    end
+  end
+
+  def game_over
+    if @board.game_won?
+      puts "Player #{@board.current_player} won!"
+    else
+      puts 'It\'s a draw!'
     end
   end
 
